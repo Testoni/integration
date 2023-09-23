@@ -1,7 +1,11 @@
 package org.testoni.service;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.testoni.dto.UserIntegrationDto;
 import org.testoni.exception.FileException;
+import org.testoni.model.Order;
+import org.testoni.model.Product;
 import org.testoni.utils.FileParserBuilder;
 import org.testoni.utils.FileReaderBuilder;
 import org.testoni.model.User;
@@ -10,8 +14,7 @@ import org.testoni.utils.Parser;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class IntegrationClientService {
@@ -45,6 +48,7 @@ public class IntegrationClientService {
             }
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             // create a list of validations
             List<UserIntegrationDto> userIntegrationDtos = new ArrayList<>();
@@ -56,12 +60,32 @@ public class IntegrationClientService {
                 Double value = Parser.parseToDouble(line.substring(75, 87));
                 String dateStr = line.substring(87, 95);
                 try {
-                    dateFormat.parse(dateStr);
+                    Date date = dateFormat.parse(dateStr);
+                    dateStr = outputDateFormat.format(date);
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }
 
-                userIntegrationDtos.add(new UserIntegrationDto(userId, name, orderId, dateStr, productId, value));
+                UserIntegrationDto userIntegrationDto = new UserIntegrationDto(userId, name, orderId, dateStr, productId, value);
+                userIntegrationDtos.add(userIntegrationDto);
+
+                User user = users.stream().filter(u -> u.getUserId().equals(userId)).findFirst().orElse(null);
+                if (user == null) {
+                    users.add(new User(userIntegrationDto));
+                } else {
+                    Order order = user.getOrders().stream().filter(o -> o.getOrderId().equals(orderId)).findFirst().orElse(null);
+                    if (order == null) {
+                        user.getOrders().add(new Order(userIntegrationDto));
+                    } else {
+                        Product product = order.getProducts().stream().filter(p -> p.getProductId().equals(productId)).findFirst().orElse(null);
+                        if (product == null) {
+                            order.setTotal(order.getTotal() + userIntegrationDto.getValue());
+                            order.getProducts().add(new Product(userIntegrationDto));
+                        } else {
+                            System.out.println("");
+                        }
+                    }
+                }
             });
 
             System.out.println("");
@@ -69,6 +93,7 @@ public class IntegrationClientService {
             e.printStackTrace();
         }
 
+        Collections.sort(users, Comparator.comparingLong(User::getUserId));
         return users;
     }
 }
