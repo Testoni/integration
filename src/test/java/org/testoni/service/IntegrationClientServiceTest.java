@@ -19,6 +19,7 @@ public class IntegrationClientServiceTest {
     @Test
     public void testProcessLineValid() {
         URL path1 = getClass().getResource("/data_1.txt");
-        new IntegrationClientService(new FileReaderBuilder(), new FileParserBuilder()).getUsersFromIntegration(path1.getPath());
+        String jsonUsersIntegration = new IntegrationClientService(new FileReaderBuilder(), new FileParserBuilder()).getJsonUsersIntegration(path1.getPath());
+        System.out.println(jsonUsersIntegration);
     }
 }

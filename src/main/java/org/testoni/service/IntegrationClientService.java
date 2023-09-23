@@ -1,14 +1,13 @@
 package org.testoni.service;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testoni.dto.UserIntegrationDto;
 import org.testoni.exception.FileException;
 import org.testoni.model.Order;
 import org.testoni.model.Product;
+import org.testoni.model.User;
 import org.testoni.utils.FileParserBuilder;
 import org.testoni.utils.FileReaderBuilder;
-import org.testoni.model.User;
 import org.testoni.utils.Parser;
 
 import java.io.File;
@@ -26,6 +25,11 @@ public class IntegrationClientService {
     public IntegrationClientService(FileReaderBuilder fileReaderBuilder, FileParserBuilder fileParserBuilder) {
         this.fileReaderBuilder = fileReaderBuilder;
         this.fileParserBuilder = fileParserBuilder;
+    }
+
+    public String getJsonUsersIntegration(String path) {
+        List<User> users = getUsersFromIntegration(path);
+        return Parser.toJson(users);
     }
 
     public List<User> getUsersFromIntegration(String path) {
@@ -53,12 +57,14 @@ public class IntegrationClientService {
             // create a list of validations
             List<UserIntegrationDto> userIntegrationDtos = new ArrayList<>();
             lines.stream().forEach(line -> {
+
                 Long userId = Parser.parseToLong(line.substring(0, 10).replaceFirst("^0+", ""));
                 String name = line.substring(10, 55).trim();
                 Long orderId = Parser.parseToLong(line.substring(55, 65).replaceFirst("^0+", ""));
                 Long productId = Parser.parseToLong(line.substring(65, 75));
                 Double value = Parser.parseToDouble(line.substring(75, 87));
                 String dateStr = line.substring(87, 95);
+
                 try {
                     Date date = dateFormat.parse(dateStr);
                     dateStr = outputDateFormat.format(date);
@@ -76,14 +82,14 @@ public class IntegrationClientService {
                     Order order = user.getOrders().stream().filter(o -> o.getOrderId().equals(orderId)).findFirst().orElse(null);
                     if (order == null) {
                         user.getOrders().add(new Order(userIntegrationDto));
+                        Collections.sort(user.getOrders(), Comparator.comparingLong(Order::getOrderId));
                     } else {
                         order.setTotal(order.getTotal() + userIntegrationDto.getValue());
                         order.getProducts().add(new Product(userIntegrationDto));
+                        Collections.sort(order.getProducts(), Comparator.comparingLong(Product::getProductId));
                     }
                 }
             });
-
-            System.out.println("");
         } catch (FileException e) {
             e.printStackTrace();
         }
