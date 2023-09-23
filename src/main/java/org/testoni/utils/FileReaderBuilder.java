@@ -3,21 +3,33 @@ package org.testoni.utils;
 import org.testoni.exception.FileException;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FileReaderBuilder {
 
-    public File searchFile(String path) throws FileException {
+    public List<File> searchFile(String path) throws FileException {
+        List<File> files = new ArrayList<>();
+
         File file = new File(path);
         validateFile(path, file);
-        return file;
+
+        if (file.isDirectory()) {
+            for (File f : file.listFiles()) {
+                if (isTextFile(f)) {
+                    files.add(f);
+                }
+            }
+            return files;
+        } else {
+            return Arrays.asList(file);
+        }
     }
 
     private void validateFile(String path, File file) throws FileException {
         if (!file.exists()) {
             throw new FileException("File or directory not found: " + path);
-        }
-        if (file.isDirectory()) {
-            throw new FileException("Please selected the file not directory");
         }
         if (file.isFile() && !isTextFile(file)) {
             throw new FileException("File is not a valid text file: " + path);

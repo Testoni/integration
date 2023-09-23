@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.testoni.dto.UserIntegrationDto;
 
-import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
-
     public User(UserIntegrationDto userIntegrationDto) {
         this.userId = userIntegrationDto.getUserId();
         this.name = userIntegrationDto.getName();
@@ -21,11 +19,7 @@ public class User {
         this.orders.add(new Order(userIntegrationDto));
     }
 
-    @Size(max = 10)
     private Long userId;
-
-    @Size(max = 45)
     private String name;
-
     private List<Order> orders;
 }

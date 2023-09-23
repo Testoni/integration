@@ -36,9 +36,9 @@ public class IntegrationClientService {
         List<User> users = new ArrayList<>();
 
         try {
-            File file = fileReaderBuilder.searchFile(path);
+            List<File> files = fileReaderBuilder.searchFile(path);
 
-            List<String> lines = fileParserBuilder.parseTextFile(file);
+            List<String> lines = fileParserBuilder.parseTextFile(files);
             validateLinesContent(lines);
 
             lines.stream().forEach(line -> insertUserData(users, line));
@@ -52,7 +52,7 @@ public class IntegrationClientService {
 
     private void validateLinesContent(List<String> lines) throws FileException {
         if (lines.isEmpty()) {
-            throw new FileException("There is no lines in the file to read");
+            throw new FileException("There is no data to read");
         }
 
         int index = IntStream.range(0, lines.size())
