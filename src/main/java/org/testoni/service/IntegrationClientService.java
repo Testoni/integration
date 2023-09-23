@@ -77,13 +77,8 @@ public class IntegrationClientService {
                     if (order == null) {
                         user.getOrders().add(new Order(userIntegrationDto));
                     } else {
-                        Product product = order.getProducts().stream().filter(p -> p.getProductId().equals(productId)).findFirst().orElse(null);
-                        if (product == null) {
-                            order.setTotal(order.getTotal() + userIntegrationDto.getValue());
-                            order.getProducts().add(new Product(userIntegrationDto));
-                        } else {
-                            System.out.println("");
-                        }
+                        order.setTotal(order.getTotal() + userIntegrationDto.getValue());
+                        order.getProducts().add(new Product(userIntegrationDto));
                     }
                 }
             });
