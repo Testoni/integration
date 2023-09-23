@@ -39,17 +39,7 @@ public class IntegrationClientService {
             File file = fileReaderBuilder.searchFile(path);
 
             List<String> lines = fileParserBuilder.parseTextFile(file);
-            if (lines.isEmpty()) {
-                throw new FileException("There is no lines in the file to read");
-            }
-
-            int index = IntStream.range(0, lines.size())
-                    .filter(i -> lines.get(i).length() != 95)
-                    .findFirst()
-                    .orElse(-1);
-            if (index != -1) {
-                throw new FileException("Integration file contains wrong line info at index " + index); // list
-            }
+            validateLinesContent(lines);
 
             lines.stream().forEach(line -> insertUserData(users, line));
         } catch (FileException e) {
@@ -58,6 +48,20 @@ public class IntegrationClientService {
 
         Collections.sort(users, Comparator.comparingLong(User::getUserId));
         return users;
+    }
+
+    private void validateLinesContent(List<String> lines) throws FileException {
+        if (lines.isEmpty()) {
+            throw new FileException("There is no lines in the file to read");
+        }
+
+        int index = IntStream.range(0, lines.size())
+                .filter(i -> lines.get(i).length() != 95)
+                .findFirst()
+                .orElse(-1);
+        if (index != -1) {
+            throw new FileException("Integration file contains wrong line info at index " + index); // list
+        }
     }
 
     private void insertUserData(List<User> users, String line) {
