@@ -1,6 +1,5 @@
 package org.testoni.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testoni.dto.UserIntegrationDto;
 import org.testoni.exception.FileException;
 import org.testoni.model.Order;
@@ -19,8 +18,9 @@ import java.util.stream.IntStream;
 public class IntegrationClientService {
 
     private final FileReaderBuilder fileReaderBuilder;
-
     private final FileParserBuilder fileParserBuilder;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+    private final SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public IntegrationClientService(FileReaderBuilder fileReaderBuilder, FileParserBuilder fileParserBuilder) {
         this.fileReaderBuilder = fileReaderBuilder;
@@ -51,50 +51,47 @@ public class IntegrationClientService {
                 throw new FileException("Integration file contains wrong line info at index " + index); // list
             }
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-            SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-            // create a list of validations
-            List<UserIntegrationDto> userIntegrationDtos = new ArrayList<>();
-            lines.stream().forEach(line -> {
-
-                Long userId = Parser.parseToLong(line.substring(0, 10).replaceFirst("^0+", ""));
-                String name = line.substring(10, 55).trim();
-                Long orderId = Parser.parseToLong(line.substring(55, 65).replaceFirst("^0+", ""));
-                Long productId = Parser.parseToLong(line.substring(65, 75));
-                Double value = Parser.parseToDouble(line.substring(75, 87));
-                String dateStr = line.substring(87, 95);
-
-                try {
-                    Date date = dateFormat.parse(dateStr);
-                    dateStr = outputDateFormat.format(date);
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
-                }
-
-                UserIntegrationDto userIntegrationDto = new UserIntegrationDto(userId, name, orderId, dateStr, productId, value);
-                userIntegrationDtos.add(userIntegrationDto);
-
-                User user = users.stream().filter(u -> u.getUserId().equals(userId)).findFirst().orElse(null);
-                if (user == null) {
-                    users.add(new User(userIntegrationDto));
-                } else {
-                    Order order = user.getOrders().stream().filter(o -> o.getOrderId().equals(orderId)).findFirst().orElse(null);
-                    if (order == null) {
-                        user.getOrders().add(new Order(userIntegrationDto));
-                        Collections.sort(user.getOrders(), Comparator.comparingLong(Order::getOrderId));
-                    } else {
-                        order.setTotal(order.getTotal() + userIntegrationDto.getValue());
-                        order.getProducts().add(new Product(userIntegrationDto));
-                        Collections.sort(order.getProducts(), Comparator.comparingLong(Product::getProductId));
-                    }
-                }
-            });
+            lines.stream().forEach(line -> insertUserData(users, line));
         } catch (FileException e) {
             e.printStackTrace();
         }
 
         Collections.sort(users, Comparator.comparingLong(User::getUserId));
         return users;
+    }
+
+    private void insertUserData(List<User> users, String line) {
+        UserIntegrationDto userIntegrationDto = getUserIntegrationFromFile(line);
+
+        User user = users.stream().filter(u -> u.getUserId().equals(userIntegrationDto.getUserId())).findFirst().orElse(null);
+        if (user == null) {
+            users.add(new User(userIntegrationDto));
+        } else {
+            Order order = user.getOrders().stream().filter(o -> o.getOrderId().equals(userIntegrationDto.getOrderId())).findFirst().orElse(null);
+            if (order == null) {
+                user.getOrders().add(new Order(userIntegrationDto));
+                Collections.sort(user.getOrders(), Comparator.comparingLong(Order::getOrderId));
+            } else {
+                order.setTotal(order.getTotal() + userIntegrationDto.getValue());
+                order.getProducts().add(new Product(userIntegrationDto));
+                Collections.sort(order.getProducts(), Comparator.comparingLong(Product::getProductId));
+            }
+        }
+    }
+
+    private UserIntegrationDto getUserIntegrationFromFile(String line) {
+        Long userId = Parser.StringToLong(line.substring(0, 10).replaceFirst("^0+", ""));
+        String name = line.substring(10, 55).trim();
+        Long orderId = Parser.StringToLong(line.substring(55, 65).replaceFirst("^0+", ""));
+        Long productId = Parser.StringToLong(line.substring(65, 75));
+        Double value = Parser.stringToDouble(line.substring(75, 87));
+        String dateStr = line.substring(87, 95);
+        try {
+            Date date = this.dateFormat.parse(dateStr);
+            dateStr = this.outputDateFormat.format(date);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return new UserIntegrationDto(userId, name, orderId, dateStr, productId, value);
     }
 }
