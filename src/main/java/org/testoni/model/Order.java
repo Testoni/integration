@@ -1,11 +1,10 @@
-package org.testoni.Model;
+package org.testoni.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data

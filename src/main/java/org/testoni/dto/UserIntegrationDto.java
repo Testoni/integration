@@ -1,16 +1,15 @@
-package org.testoni.Model;
+package org.testoni.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Size;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class UserIntegrationDto {
 
     @Size(max = 10)
     private Long userId;
@@ -18,5 +17,15 @@ public class User {
     @Size(max = 45)
     private String name;
 
-    private List<Order> orders;
+    @Size(max = 10)
+    private Long orderId;
+
+    @Size(max = 8)
+    private String date;
+
+    @Size(max = 10)
+    private Long productId;
+
+    @Size(max = 12)
+    private Double value;
 }
