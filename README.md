@@ -2,8 +2,6 @@
 
 This Java project integrates users from a legacy system.
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 ## Table of Contents
 
 - [Features](#features)
