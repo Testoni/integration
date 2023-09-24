@@ -104,3 +104,10 @@ After processing the input file, the application generates the following JSON ou
     ]
   }
 ]
+```
+**Warning!** 
+<blockquote style="border-left: 5px solid #ff0000; padding-left: 10px;">
+  Check that the ids are not duplicated for different users
+</blockquote>
+
+
