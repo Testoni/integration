@@ -6,6 +6,7 @@ import org.testoni.exception.CustomParseException;
 import org.testoni.model.Order;
 import org.testoni.model.User;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,6 +48,34 @@ public class UtilsParserTest {
             utilsParser.stringToDouble("xxx");
         });
         assertTrue(exception.getMessage().contains("Error parsing the string to double: " + input));
+    }
+
+    @Test
+    public void shouldConvertStringToDate() throws CustomParseException {
+        LocalDate date = utilsParser.stringToLocalDate("20230924", "yyyyMMdd");
+        assertEquals("2023-09-24", date.toString());
+    }
+
+    @Test
+    public void shouldGiveExceptionWhenConvertStringToDate() {
+        CustomParseException exception = assertThrows(CustomParseException.class, () -> {
+            utilsParser.stringToLocalDate("xxx", "yyyyMMdd");
+        });
+        assertTrue(exception.getMessage().contains("Error parsing string to date: "));
+    }
+
+    @Test
+    public void shouldConvertDateToString() throws CustomParseException {
+        String strDate = utilsParser.dateToString(LocalDate.of(2023, 4, 10), "yyyyMMdd");
+        assertEquals("20230410", strDate.toString());
+    }
+
+    @Test
+    public void shouldGiveExceptionWhenConvertDateToString() {
+        CustomParseException exception = assertThrows(CustomParseException.class, () -> {
+            utilsParser.dateToString(LocalDate.now(), "xxas");
+        });
+        assertTrue(exception.getMessage().contains("Error parsing date to string: "));
     }
 
     @Test

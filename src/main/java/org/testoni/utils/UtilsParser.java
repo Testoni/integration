@@ -4,6 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.testoni.exception.CustomParseException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.UnsupportedTemporalTypeException;
+
 public class UtilsParser {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -29,6 +34,24 @@ public class UtilsParser {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             throw new CustomParseException("Error converting object to JSON: " + e.getMessage(), e);
+        }
+    }
+
+    public static LocalDate stringToLocalDate(String dateStr, String format) throws DateTimeParseException {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+            return LocalDate.parse(dateStr, formatter);
+        } catch (DateTimeParseException e) {
+            throw new CustomParseException("Error parsing string to date: " + e.getMessage(), e);
+        }
+    }
+
+    public static String dateToString(LocalDate date, String format) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+            return date.format(formatter);
+        } catch (UnsupportedTemporalTypeException e) {
+            throw new CustomParseException("Error parsing date to string: " + e.getMessage(), e);
         }
     }
 }
