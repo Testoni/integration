@@ -9,7 +9,6 @@ import org.testoni.utils.UtilsParser;
 import org.testoni.utils.file.IFileReader;
 
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,8 +19,6 @@ import java.util.stream.IntStream;
 public class IntegrationClientService {
 
     private final IFileReader iFileReader;
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-    private final SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     static final int LINE_LENGTH = 95;
 
     public IntegrationClientService(IFileReader iFileReader) {
