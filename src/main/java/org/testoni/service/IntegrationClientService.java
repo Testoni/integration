@@ -6,6 +6,7 @@ import org.testoni.model.Order;
 import org.testoni.model.Product;
 import org.testoni.model.User;
 import org.testoni.utils.UtilsParser;
+import org.testoni.utils.file.FileReaderText;
 import org.testoni.utils.file.IFileReader;
 
 import java.io.FileNotFoundException;
@@ -23,6 +24,13 @@ public class IntegrationClientService {
 
     public IntegrationClientService(IFileReader iFileReader) {
         this.iFileReader = iFileReader;
+    }
+
+    public static void main(String[] args) throws FileNotFoundException {
+        String path = args[0];
+        IntegrationClientService integrationClientService = new IntegrationClientService(new FileReaderText());
+        String json = integrationClientService.getJsonUsersIntegration(path);
+        System.out.println(json);
     }
 
     public String getJsonUsersIntegration(String path) throws FileNotFoundException {
