@@ -9,6 +9,7 @@ This Java project integrates users from a legacy system.
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Example](#example)
+- [Execute](#execute)
 
 ## Features
 
@@ -110,4 +111,11 @@ After processing the input file, the application generates the following JSON ou
   Check that the ids are not duplicated for different users
 </blockquote>
 
+## Execute
 
+To execute this project from jar:
+   ```bash
+   mvn clean package
+
+   java -cp target/client-integration-1.0-SNAPSHOT.jar org.testoni.service.IntegrationClientService [yourpath]
+```
